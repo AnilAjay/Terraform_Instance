@@ -23,13 +23,13 @@ jobs:
         with:
           terraform_version: 1.4.5  # Specify the Terraform version you want to use
 
-      # Step 3: Configure AWS Credentials (Use GitHub Secrets)
+      # Step 3: Configure AWS Credentials using GitHub Secrets
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_region: "us-east-1"  # Replace with your region
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: "us-east-1"  # Replace with your region
 
       # Step 4: Initialize Terraform
       - name: Terraform Init
@@ -42,5 +42,3 @@ jobs:
       # Step 6: Terraform Apply
       - name: Terraform Apply
         run: terraform apply -auto-approve tfplan
-        # Remove `-auto-approve` if you want manual approval
-
