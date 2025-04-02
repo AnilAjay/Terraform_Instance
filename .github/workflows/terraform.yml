@@ -1,36 +1,51 @@
-name: Terraform Deployment
+name: Terraform AWS Deployment
 
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   terraform:
+    name: Terraform Apply
     runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    # Checkout the repository
+    - name: Checkout
+      uses: actions/checkout@v3
 
-      - name: Set up AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          AWS-ACCESS-KEY-ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS-SECRET-ACCESS-KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS-REGION : us-east-1  # Make sure this matches your region
-          
-      - name: Install Terraform
-        run: |
-          curl -LO https://github.com/hashicorp/terraform/releases/download/v1.3.7/terraform_1.3.7_linux_amd64.zip
-          unzip terraform_1.3.7_linux_amd64.zip
-          sudo mv terraform /usr/local/bin/
+    # Setup Terraform
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.5.0  # Specify your desired Terraform version
 
-      - name: Run Terraform init
-        run: terraform init
+    # Terraform Init
+    - name: Terraform Init
+      run: terraform init
 
-      - name: Run Terraform plan
-        run: terraform plan
+    # Terraform Format
+    - name: Terraform Format
+      run: terraform fmt -check
 
-      - name: Run Terraform apply
-        run: terraform apply -auto-approve
+    # Terraform Plan
+    - name: Terraform Plan
+      run: terraform plan -out=tfplan
+      if: github.event_name == 'pull_request'
+
+    # Terraform Apply
+    - name: Terraform Apply
+      run: terraform apply -auto-approve
+      if: github.event_name == 'push'
+
+    # Show Instance IP
+    - name: Show Instance IP
+      run: terraform output instance_public_ip
+      if: github.event_name == 'push'
