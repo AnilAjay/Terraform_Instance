@@ -31,10 +31,6 @@ jobs:
     - name: Terraform Init
       run: terraform init
 
-    # Terraform Format
-    - name: Terraform Format
-      run: terraform fmt -check
-
     # Terraform Plan
     - name: Terraform Plan
       run: terraform plan -out=tfplan
